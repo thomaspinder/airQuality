@@ -1,47 +1,47 @@
-,rank,county,value (£billions)
-0,1,Greater London[note 1],364.31
-1,2,Greater Manchester,57.39
-2,3,West Midlands,55.54
-3,4,Hampshire,47.20
-4,5,West Yorkshire,47.11
-5,6,Nottinghamshire,37.50
-6,7,Essex,35.86
-7,8,Kent,35.85
-8,9,Berkshire,34.50
-9,10,Hertfordshire,32.75
-10,11,Merseyside,28.25
-11,12,Somerset[note 2],28.19
-12,13,Lancashire,27.66
-13,14,Cheshire,25.80
-14,15,Surrey,24.57
-15,16,South Yorkshire,23.85
-16,17,Tyne and Wear,22.77
-17,18,Leicestershire and Rutland[note 3],22.72
-18,19,Devon,22.67
-19,20,Cambridgeshire,22.65
-20,21,North Yorkshire[note 4],22.48
-21,22,Derbyshire,21.66
-22,23,Buckinghamshire,21.29
-23,24,West Sussex,20.50
-24,25,Oxfordshire,20.50
-25,26,Staffordshire,20.19
-26,27,Lincolnshire,20.13
-27,28,Norfolk,17.52
-28,29,Wiltshire,16.39
-29,30,Suffolk,16.37
-30,31,Dorset,16.18
-31,32,East Sussex,16.14
-32,33,Northamptonshire,15.95
-33,34,Durham[note 5],15.72
-34,35,Warwickshire,14.34
-35,36,Bedfordshire,13.78
-36,37,Bristol,13.27
-37,38,Worcestershire,11.32
-38,39,Gloucestershire,11
-39,40,East Riding of Yorkshire,10.88
-40,41,Cumbria,10.74
-41,42,Shropshire,9.70
-42,40,Cornwall,9.46
-43,43,Northumberland,4.73
-44,44,Herefordshire,3.63
-45,45,Isle of Wight,2.40
+rank,county,value_billions
+1,Greater London[note 1],364.31
+2,Greater Manchester,57.39
+3,West Midlands,55.54
+4,Hampshire,47.20
+5,West Yorkshire,47.11
+6,Nottinghamshire,37.50
+7,Essex,35.86
+8,Kent,35.85
+9,Berkshire,34.50
+10,Hertfordshire,32.75
+11,Merseyside,28.25
+12,Somerset[note 2],28.19
+13,Lancashire,27.66
+14,Cheshire,25.80
+15,Surrey,24.57
+16,South Yorkshire,23.85
+17,Tyne and Wear,22.77
+18,Leicestershire and Rutland[note 3],22.72
+19,Devon,22.67
+20,Cambridgeshire,22.65
+21,North Yorkshire[note 4],22.48
+22,Derbyshire,21.66
+23,Buckinghamshire,21.29
+24,West Sussex,20.50
+25,Oxfordshire,20.50
+26,Staffordshire,20.19
+27,Lincolnshire,20.13
+28,Norfolk,17.52
+29,Wiltshire,16.39
+30,Suffolk,16.37
+31,Dorset,16.18
+32,East Sussex,16.14
+33,Northamptonshire,15.95
+34,Durham[note 5],15.72
+35,Warwickshire,14.34
+36,Bedfordshire,13.78
+37,Bristol,13.27
+38,Worcestershire,11.32
+39,Gloucestershire,11
+40,East Riding of Yorkshire,10.88
+41,Cumbria,10.74
+42,Shropshire,9.70
+40,Cornwall,9.46
+43,Northumberland,4.73
+44,Herefordshire,3.63
+45,Isle of Wight,2.40

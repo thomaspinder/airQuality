@@ -1,3 +1,4 @@
 data:
-		jupyter nbconvert --execute MSOA_household_income.ipynb
+		sh get_msoa.sh
+		sh get_shp.sh
 		jupyter nbconvert --execute Wikipedia_Scrape.ipynb

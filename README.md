@@ -8,5 +8,8 @@ Currently, work is being done to creare a UK wide model of PM2.5 levels. Further
 
 1. Clone the repository ```git clone https://github.com/thomaspinder/airQuality.git```
 2. Move into new directory ```cd airQuality```
-3. Install required libraries through ```pip install -r requirements```
-4. Obtain necessary datasets ```make init```
+3. Run ```make init``` to install the necessary libraries and download, clean and process the required datasets.
+
+### Data Used
+
+Within step 2 of the above installation instructions, two datasets will be downloaded. The first dataset comes from of the Office of National Statistics while t
