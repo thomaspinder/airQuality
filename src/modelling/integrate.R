@@ -25,5 +25,5 @@ mapped_msoa <- msoa %>%
 	dplyr::left_join(mappings, by=c("MSOA.code"="msoa")) %>%
   mutate(city_name = ifelse(is.na(city_name), str_trim(str_extract(msoa_text, '\\D*')) , city_name))
 
-
+# Store data as csv
 write.csv(mapped_msoa, 'src/data/cleaned/mapped_msoa.csv', row.names=FALSE)
