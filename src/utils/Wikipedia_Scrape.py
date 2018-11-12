@@ -53,7 +53,7 @@ values = [re.search(r'\d+(\.\d{1,2})?', value)[0].strip() for value in values]
 county_gva = pd.DataFrame({
     'rank': ranks,
     'county': counties,
-    'value (£billions)': values
+    'value_billions': values
 })
 
 
@@ -62,5 +62,5 @@ county_gva = pd.DataFrame({
 # In[8]:
 
 
-county_gva.to_csv('../data/county_gva.csv')
+county_gva.to_csv('../data/county_gva.csv', index=False)
 

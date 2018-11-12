@@ -63,16 +63,21 @@ class Dataset:
             print('Updating known value variable...')
             self.val_col = new_name
 
+    def write_data(self, output_file):
+        self.data.to_csv('src/data/cleaned/{}'.format(output_file), index=False, encoding='utf8')
+
 
 if __name__ == '__main__':
     counties = Dataset()
     counties.data_load(loc='src/data/county_gva.csv', value_col='value_billions', verbose=True, units='billion')
     counties.bin_obs(8)
+    counties.write_data('counties.csv')
 
     msoa = Dataset()
     msoa.data_load(loc='src/data/msoa_household.csv', value_col='Total annual income (£)', verbose=False, units='')
     msoa.rename_col('Total annual income (£)', 'toal_income', value=True)
     msoa.bin_obs(8)
+    msoa.write_data('msoa.csv')
 
     msoas = Shapefile()
-    msoas.load_shapefile(loc='src/data/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=True)
+    msoas.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=True)

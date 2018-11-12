@@ -1,12 +1,9 @@
 BIN:=src/utils
 
 all:
-		make init
-		make clean
 		make reqs
-
-clean:
-		rm -r src/data/*
+		make init
+		make prep
 
 init:
 		pip install --user -r requirements.txt
@@ -14,3 +11,9 @@ init:
 
 reqs:
 		sh src/utils/reqs_gen.sh
+
+prep:
+		python src/modelling/modelling.py
+
+rtest:
+		Rscript src/modelling/integrate.R
