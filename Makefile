@@ -13,7 +13,7 @@ reqs:
 		sh src/utils/reqs_gen.sh
 
 prep:
-		python src/modelling/modelling.py
+		python src/modelling/wrangle.py
 
 rtest:
 		Rscript src/modelling/integrate.R

@@ -2,42 +2,95 @@ import sys
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
+from copy import deepcopy
+from shapely.geometry import Point
 
 sns.set(style='ticks')
+plt.style.use('seaborn-ticks')
+mpl.rc("font", family="Verdana")
 
 
 class Shapefile:
     """
     Shapefile object that allows for centroids to be calculated and visualised.
     """
-    def __init__(self):
+    def __init__(self, meta_name=None):
         self.poly = None
         self.points = None
+        self.meta_name = meta_name
 
-    def load_shapefile(self, loc, verbose=False):
+    def load_csv(self, loc, county_id='iso3', verbose=False, points=True):
+        # Load dataset
+        shape_csv = pd.read_csv(loc)
+        shape_csv.columns = [x.lower() for x in shape_csv.columns]
+        try:
+            shape = shape_csv[(shape_csv[county_id] == 'GBR') & (shape_csv['year'] == 2014)]
+        except KeyError:
+            print('Country identifier missing or incorrectly specified. Data for {} contains all countries.'.format(self.meta_name))
+
+        # Build coordinates column
+        shape = self._find_coords(shape)
+
+        # Convert to GeoDataFrame
+        shape_geo = gpd.GeoDataFrame(shape, geometry='coordinates')
+
+        if verbose:
+            print(shape_geo.head())
+        if points:
+            self.points = shape_geo
+        else:
+            self.poly = shape_geo
+        print('CSV successfully coerced in a GeoDataFrame!')
+
+    @staticmethod
+    def _find_coords(df):
+        if 'latitude' in df.columns:
+            try:
+                df['coordinates'] = list(zip(df.longitude, df.latitude))
+            except AttributeError:
+                raise AttributeError('Supplied .csv does not contain columns for latitude and longitude. Please reformat.')
+        elif 'lat' in df.columns:
+            try:
+                df['coordinates'] = list(zip(df.lon, df.lat))
+            except AttributeError:
+                raise AttributeError('Supplied .csv does not contain columns for lat and lon. Please reformat.')
+        else:
+            raise AttributeError('Coordinates not found in desired format. Please ensure two columns exist, one title longitude, the second titled latitude.')
+        df['coordinates'] = df['coordinates'].apply(Point)
+        return df
+
+    def load_shapefile(self, loc, verbose=False, shp_type='polygon'):
         """
         Read in the shape file
         """
         shape = gpd.read_file(loc)
         print('Points successfully loaded')
-        self.poly = shape
+        
+        # Decide where to place file
+        if shp_type == 'polygon':
+            self.poly = shape
+        elif shp_type == 'point':
+            if not self.point:
+                self.points = shape
+            elif self.point.shape[0] > 1:
+                self.point_set = [self.points, shape]        
         if verbose:
             print(shape.head())
 
-    def plot_shape(self):
+    def plot_shape(self, outname, markers=10):
         """
         Plot the shapefile using geopandas' pyplot wrapper. If a points object exists, this will be overlayed on the shapefile
         """
         fig, ax = plt.subplots(figsize=(50,33))
         ax.set_aspect('equal')
         self.poly.plot(ax=ax)
-        if self.points:
-            self.points.plot(ax=ax, marker='o', color='red', markersize=2)
-        plt.savefig('results/plots/msoa_shapes.png')
+        self.points.plot(ax=ax, marker='o', color='red', markersize=markers)
+        plt.savefig('results/plots/{}'.format(outname))
 
     def get_centroids(self, outname=None):
         """
@@ -50,6 +103,25 @@ class Shapefile:
             points.to_file('src/data/shapes/{}'.format(outname))
             print('Points written to disk.')
         self.points = points
+
+    def reproject(self, new_crs, inplace=True, visualise=False):
+        old_crs = self.poly.crs
+        self.poly_old = deepcopy(self.poly)
+        self.poly = self.poly.to_crs({'init': new_crs})
+        if visualise:
+            fig, ax = plt.subplots(ncols=2, figsize=(50,50))
+            [axes.set_aspect('equal') for axes in ax]            
+            self.poly_old.plot(ax=ax[0])
+            self.poly.plot(ax=ax[1])
+            ax[0].set_title('Old Projection: {}'.format(self.poly_old.crs['datum']), fontsize=60, y=1.05)
+            ax[1].set_title('New Projection: {}'.format(new_crs), fontsize=60, y=1.05)
+            ax[0].xaxis.label.set_fontsize(60)
+            for axes in ax:
+                for tick in axes.xaxis.get_major_ticks():
+                    tick.label.set_fontsize(30)
+                for tick in axes.yaxis.get_major_ticks():
+                    tick.label.set_fontsize(30) 
+            fig.savefig('results/plots/reprojection.png')
 
 
 class Dataset:
@@ -125,7 +197,16 @@ if __name__ == '__main__':
     msoa.bin_obs(8)
     msoa.write_data('msoa.csv')
 
-    msoas_shp = Shapefile()
+    # Define Centroid spatial df
+    msoas_shp = Shapefile(meta_name='MSOA Shapefile')
     msoas_shp.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=True)
+    msoas_shp.reproject('epsg:4326', visualise=False)
     msoas_shp.get_centroids(outname='msoa_centroids.shp')
-    msoas_shp.plot_shape()
+    # msoas_shp.plot_shape('msoa_shapes.png')
+
+    # Define WHO AQ monitoring spatial df
+    air_quality = Shapefile('WHO AQ Data')
+    air_quality.load_csv('src/data/cleaned/aq.csv', verbose=True)
+    air_quality.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=True)
+    air_quality.reproject('epsg:4326', visualise=False)
+    air_quality.plot_shape('aq_on_msoa.png', 25)
