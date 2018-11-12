@@ -1,5 +1,6 @@
 import sys
 
+import numpy as np
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -124,6 +125,66 @@ class Shapefile:
             fig.savefig('results/plots/reprojection.png')
 
 
+class Locator:
+    """
+    Determine distances and nearest neighbors with a series of outputs.
+    """
+    def __init__(self, meta_name):
+        self.name = meta_name
+        self.reference = None
+        self.lookup = None
+        self.distances = {}
+
+    def loader(self, reference_data, lookup_data):
+        if isinstance(reference_data, pd.DataFrame):
+            self.reference = reference_data
+            print('Reference Data loaded')
+        else:
+            raise AttributeError('Reference data must be a Pandas DataFrame.') 
+        if isinstance(lookup_data, list):
+            self.lookup = lookup_data
+            print('Lookup Data loaded')
+        elif isinstance(lookup_data, pd.Series):
+            self.lookup = lookup_data.tolist()
+            print('Lookup Data loaded')
+        else:
+            raise AttributeError('Lookup data must either be a list or Pandas Series.') 
+    
+    @staticmethod
+    def min_and_idx(ref_point, lookups):
+        vals = [ref_point.distance(centroid) for centroid in lookups]
+        # Get the smallest element's index
+        idx = np.argmin(vals)
+        coord = lookups[idx]
+
+        # Get the smallest element's distance
+        min_val = np.min(vals)
+        return(min_val, coord)
+
+    def calculate_distances(self):
+        for i, row in self.reference.iterrows():
+            coord = (row['coordinates'].x, row['coordinates'].y)
+            if coord in self.distances:
+                pass
+            else:
+                self.distances[coord] = self.min_and_idx(row['coordinates'], self.lookup)
+
+    def get_dict(self):
+        return self.distances
+    
+    def get_df(self):
+        lon, lat = map(list, zip(*list(self.distances.keys())))
+        distance, measuring_point = map(list, zip(*list(self.distances.values())))
+        dist_df = pd.DataFrame({
+            'r_lon': lon,
+            'r_lat': lat,
+            'distance': distance,
+            'lookup_point': measuring_point
+        })
+        self.distances_df = dist_df
+        return dist_df
+
+
 class Dataset:
     def __init__(self):
         self.data = None
@@ -186,27 +247,33 @@ class Dataset:
 
 
 if __name__ == '__main__':
-    counties = Dataset()
-    counties.data_load(loc='src/data/county_gva.csv', value_col='value_billions', verbose=True, units='billion')
-    counties.bin_obs(8)
-    counties.write_data('counties.csv')
+    # counties = Dataset()
+    # counties.data_load(loc='src/data/county_gva.csv', value_col='value_billions', verbose=True, units='billion')
+    # counties.bin_obs(8)
+    # counties.write_data('counties.csv')
 
-    msoa = Dataset()
-    msoa.data_load(loc='src/data/msoa_household.csv', value_col='Total annual income (£)', verbose=False, units='')
-    msoa.rename_col('Total annual income (£)', 'toal_income', value=True)
-    msoa.bin_obs(8)
-    msoa.write_data('msoa.csv')
+    # msoa = Dataset()
+    # msoa.data_load(loc='src/data/msoa_household.csv', value_col='Total annual income (£)', verbose=False, units='')
+    # msoa.rename_col('Total annual income (£)', 'toal_income', value=True)
+    # msoa.bin_obs(8)
+    # msoa.write_data('msoa.csv')
 
     # Define Centroid spatial df
     msoas_shp = Shapefile(meta_name='MSOA Shapefile')
-    msoas_shp.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=True)
-    msoas_shp.reproject('epsg:4326', visualise=False)
+    msoas_shp.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=False)
+    msoas_shp.reproject('epsg:4326', visualise=True)
     msoas_shp.get_centroids(outname='msoa_centroids.shp')
     # msoas_shp.plot_shape('msoa_shapes.png')
 
     # Define WHO AQ monitoring spatial df
     air_quality = Shapefile('WHO AQ Data')
     air_quality.load_csv('src/data/cleaned/aq.csv', verbose=True)
-    air_quality.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=True)
+    air_quality.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=False)
     air_quality.reproject('epsg:4326', visualise=False)
-    air_quality.plot_shape('aq_on_msoa.png', 25)
+    # air_quality.plot_shape('aq_on_msoa.png', 25)
+
+    dists = Locator('Monitoring Proximities')
+    dists.loader(air_quality.points, msoas_shp.points.geometry.tolist())
+    dists.calculate_distances()
+    res = dists.get_df()
+    print(res.head())
