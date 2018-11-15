@@ -247,16 +247,16 @@ class Dataset:
 
 
 if __name__ == '__main__':
-    # counties = Dataset()
-    # counties.data_load(loc='src/data/county_gva.csv', value_col='value_billions', verbose=True, units='billion')
-    # counties.bin_obs(8)
-    # counties.write_data('counties.csv')
+    counties = Dataset()
+    counties.data_load(loc='src/data/county_gva.csv', value_col='value_billions', verbose=True, units='billion')
+    counties.bin_obs(8)
+    counties.write_data('counties.csv')
 
-    # msoa = Dataset()
-    # msoa.data_load(loc='src/data/msoa_household.csv', value_col='Total annual income (£)', verbose=False, units='')
-    # msoa.rename_col('Total annual income (£)', 'toal_income', value=True)
-    # msoa.bin_obs(8)
-    # msoa.write_data('msoa.csv')
+    msoa = Dataset()
+    msoa.data_load(loc='src/data/msoa_household.csv', value_col='Total annual income (£)', verbose=False, units='')
+    msoa.rename_col('Total annual income (£)', 'toal_income', value=True)
+    msoa.bin_obs(8)
+    msoa.write_data('msoa.csv')
 
     # Define Centroid spatial df
     msoas_shp = Shapefile(meta_name='MSOA Shapefile')
