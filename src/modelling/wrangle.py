@@ -91,6 +91,7 @@ class Shapefile:
         ax.set_aspect('equal')
         self.poly.plot(ax=ax)
         self.points.plot(ax=ax, marker='o', color='red', markersize=markers)
+        plt.title('UK PM2.5 Air Quality Monitoring Sites 2014', fontsize=60)
         plt.savefig('results/plots/{}'.format(outname))
 
     def get_centroids(self, outname=None):
@@ -114,7 +115,7 @@ class Shapefile:
             [axes.set_aspect('equal') for axes in ax]            
             self.poly_old.plot(ax=ax[0])
             self.poly.plot(ax=ax[1])
-            ax[0].set_title('Old Projection: {}'.format(self.poly_old.crs['datum']), fontsize=60, y=1.05)
+            ax[0].set_title('Old Projection: {}'.format(self.poly_old.crs['init']), fontsize=60, y=1.05)
             ax[1].set_title('New Projection: {}'.format(new_crs), fontsize=60, y=1.05)
             ax[0].xaxis.label.set_fontsize(60)
             for axes in ax:
@@ -197,7 +198,8 @@ class Dataset:
         data_in = pd.read_csv(loc)
         data_in = data_in.dropna()
         if verbose:
-            print('County Count: {}\nAverage Value: £{} {}\n'.format(data_in.shape[0], np.round(np.mean(data_in[value_col]), 3), units))
+            print('County Count: {}\nAverage Value: £{} {}\n'.format(data_in.shape[0],
+                                                                     np.round(np.mean(data_in[value_col]), 3), units))
         self.data = data_in
         self.val_col = value_col
 
@@ -270,10 +272,9 @@ if __name__ == '__main__':
     air_quality.load_csv('src/data/cleaned/aq.csv', verbose=True)
     air_quality.load_shapefile(loc='src/data/shapes/Middle_Layer_Super_Output_Areas_December_2011_Super_Generalised_Clipped_Boundaries_in_England_and_Wales.shp', verbose=False)
     air_quality.reproject('epsg:4326', visualise=False)
-    # air_quality.plot_shape('aq_on_msoa.png', 25)
+    air_quality.plot_shape('aq_on_msoa.png', 150)
 
     dists = Locator('Monitoring Proximities')
     dists.loader(air_quality.points, msoas_shp.points.geometry.tolist())
     dists.calculate_distances()
     res = dists.get_df()
-    print(res.head())
